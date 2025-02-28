@@ -1,0 +1,30 @@
+import sys
+import os
+
+# Add the path to the students/wagner_riley/ directory
+sys.path.append(os.path.abspath("C:/Users/Riley/fsan830spring2025/students/wagner_riley"))
+
+# Now import ds from horse_db
+from horse_db import ds
+
+import xarray as xr
+
+def get_top_3(ds):
+    # Convert xarray Dataset to DataFrame and reset index
+    df = ds.to_dataframe().reset_index()
+    
+    # Group by trackID, trackName, raceDate, and raceNumber, then sort and take top 3 per group
+    top_3 = (
+        df.groupby(["trackID", "trackName", "raceDate", "raceNumber"], group_keys=False)
+        [["horse", "finishingPosition", "odds", "purse", "distance", "trackCondition"]]
+        .apply(lambda x: x.nsmallest(3, "finishingPosition"))
+        .reset_index(drop=True)
+    )
+
+    return top_3
+
+# Call the function and get top 3 horses
+top_3_horses = get_top_3(ds)
+
+print(top_3_horses)
+
